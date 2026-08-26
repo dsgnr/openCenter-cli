@@ -109,6 +109,10 @@ func (cl *ConfigLoader) LoadFromBytes(data []byte) (*Config, error) {
 		return nil, fmt.Errorf("stage 4 (apply defaults): %w", err)
 	}
 
+	// Stage 4b: Hydrate BaseConfig fields from defaultServiceMap for services
+	// present in the config.
+	applyServiceMapDefaults(cfg)
+
 	// Stage 5: Validate
 	if err := cl.validate(cfg); err != nil {
 		return nil, fmt.Errorf("stage 5 (validate): %w", err)

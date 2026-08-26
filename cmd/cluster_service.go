@@ -101,7 +101,7 @@ Examples:
 
 			serviceCfg := existingService
 			if !exists {
-				serviceCfg = newServiceConfig(serviceName)
+				serviceCfg = newServiceConfig(serviceName, cfg.OpenCenter.Cluster.ClusterFQDN)
 			}
 			serviceCfg, err = materializeServiceConfig(serviceName, serviceCfg)
 			if err != nil {
@@ -267,7 +267,12 @@ Examples:
 	return cmd
 }
 
-func newServiceConfig(serviceName string) any {
+func newServiceConfig(serviceName, clusterFQDN string) any {
+	if clusterFQDN != "" {
+		if def := v2.DefaultServiceConfig(serviceName, clusterFQDN); def != nil {
+			return def
+		}
+	}
 	configType := registry.GetServiceConfigType(serviceName)
 	if configType == nil {
 		configType = reflect.TypeOf(services.DefaultServiceConfig{})
@@ -350,7 +355,7 @@ func processParams(params []string, serviceCfg any) error {
 
 func materializeServiceConfig(serviceName string, serviceCfg any) (any, error) {
 	if serviceCfg == nil {
-		return newServiceConfig(serviceName), nil
+		return newServiceConfig(serviceName, ""), nil
 	}
 
 	switch serviceCfg.(type) {
