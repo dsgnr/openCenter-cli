@@ -87,9 +87,13 @@ func promoteOverlay(workspaceOverlayDir, targetOverlayDir, clusterName string, o
 		if ownedSecretPaths[path] {
 			continue
 		}
-		if _, tracked := manifest.Files[path]; !tracked {
-			unknown = append(unknown, path)
+		if _, tracked := manifest.Files[path]; tracked {
+			continue
 		}
+		if _, willWrite := planned[path]; willWrite {
+			continue
+		}
+		unknown = append(unknown, path)
 	}
 	sort.Strings(unknown)
 	if len(unknown) > 0 && !bootstrap && !opts.Force {

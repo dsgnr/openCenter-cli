@@ -7,7 +7,7 @@ metadata:
   namespace: keycloak
 spec:
   scaleTargetRef:
-    apiVersion: k8s.keycloak.org/v2alpha1
+    apiVersion: k8s.keycloak.org/v2beta1
     kind: Keycloak
     name: keycloak
   minReplicas: {{ .OpenCenter.Services.keycloak.MinReplicas | default 3 }}

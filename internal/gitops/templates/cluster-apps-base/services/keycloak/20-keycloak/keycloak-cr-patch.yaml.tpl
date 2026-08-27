@@ -1,7 +1,7 @@
 ---
 # Keycloak Custom Resource patch configuration
 # Defines a highly available Keycloak deployment with PostgreSQL backend
-apiVersion: k8s.keycloak.org/v2alpha1
+apiVersion: k8s.keycloak.org/v2beta1
 kind: Keycloak
 metadata:
   name: keycloak
@@ -93,7 +93,7 @@ spec:
                 app.kubernetes.io/component: "server"
           - maxSkew: 1
             topologyKey: "kubernetes.io/hostname"
-            whenUnsatisfiable: "DoNotSchedule"
+            whenUnsatisfiable: "ScheduleAnyway"
             labelSelector:
               matchLabels:
                 app: "keycloak"
