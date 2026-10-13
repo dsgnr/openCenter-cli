@@ -14,10 +14,7 @@ func TestValidateForDeploymentRejectsMimirSwiftCredentialPlaceholder(t *testing.
 	mimir.StorageType = "swift"
 	cfg.Secrets.Mimir.SwiftApplicationCredentialSecret = PlaceholderSecret
 
-	err := ValidateForDeployment(cfg)
-	if err == nil || !strings.Contains(err.Error(), "resolved Swift storage backend") {
-		t.Fatalf("ValidateForDeployment() error = %v, want non-OpenStack Swift rejection", err)
-	}
+	assertIssue(t, ValidateReadiness(cfg), SeverityError, CategoryProvider, "opencenter.services.mimir.storage_type")
 }
 
 func TestValidateForDeploymentRejectsMimirS3CredentialPlaceholders(t *testing.T) {
@@ -74,5 +71,19 @@ func TestValidateForDeploymentRejectsHarborS3CredentialPlaceholders(t *testing.T
 		if !strings.Contains(err.Error(), path) {
 			t.Fatalf("ValidateForDeployment() error = %v, missing %q", err, path)
 		}
+	}
+}
+
+func TestValidateBusinessRulesAllowsUnresolvedMimirSwiftOnNonOpenStack(t *testing.T) {
+	for _, storageType := range []string{"", "swift"} {
+		cfg := validReadinessConfig(t, "kind")
+		mimir := cfg.OpenCenter.Services["mimir"].(*services.MimirConfig)
+		mimir.Enabled = true
+		mimir.StorageType = storageType
+
+		if err := NewValidator().ValidateBusinessRules(cfg); err != nil {
+			t.Fatalf("storage_type %q: ValidateBusinessRules() error = %v, want nil", storageType, err)
+		}
+		assertIssue(t, ValidateReadiness(cfg), SeverityError, CategoryProvider, "opencenter.services.mimir.storage_type")
 	}
 }

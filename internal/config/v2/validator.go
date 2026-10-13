@@ -170,10 +170,6 @@ func storagePolicyIssues(cfg *Config) []storagePolicyIssue {
 				add("opencenter.services.mimir.swift_application_credential_id", err.Error())
 			}
 		}
-		if serviceName == "mimir" && storageType == "" && strings.ToLower(strings.TrimSpace(cfg.OpenCenter.Infrastructure.Provider)) != "openstack" {
-			add("opencenter.services.mimir.storage_type", "Mimir's resolved Swift storage backend is only supported on OpenStack infrastructure.")
-			continue
-		}
 		if storageType == "" || storageType == "s3" {
 			continue
 		}
@@ -183,11 +179,9 @@ func storagePolicyIssues(cfg *Config) []storagePolicyIssue {
 		}
 		if storageType == "swift" {
 			if serviceName == "mimir" {
-				if strings.ToLower(strings.TrimSpace(cfg.OpenCenter.Infrastructure.Provider)) != "openstack" {
-					add(path, "Mimir's resolved Swift storage backend is only supported on OpenStack infrastructure.")
-				}
 				// Mimir retains its legacy Swift backend for existing
-				// OpenStack deployments; its S3 backend is validated below.
+				// OpenStack deployments. The provider restriction is enforced
+				// by deployment readiness so that config edits are not blocked.
 				continue
 			}
 			add(path, "Swift is no longer supported for platform bulk data; migrate to the S3-compatible storage profile.")
