@@ -17,6 +17,7 @@ tags: [kind, verification, testing, fluxcd, troubleshooting]
 * A running Kind cluster created via `opencenter cluster deploy`.
 * `kubectl` and the `flux` CLI installed.
 * Access to the cluster's kubeconfig.
+* On ARM hosts, Rosetta emulation for amd64 containers, which Harbor requires (see [Pods `CrashLoopBackOff`](#pods-crashloopbackoff)).
 
 ```bash
 CLUSTER_NAME="my-cluster"
@@ -149,6 +150,8 @@ flux reconcile helmrelease <name> -n <namespace>
 kubectl logs <pod-name> -n <namespace> --previous
 kubectl describe pod <pod-name> -n <namespace>
 ```
+
+Harbor core, exporter, jobservice, registry and Trivy crash with `fatal error: lfstack.push` and an `asm_amd64.s` stack trace on ARM hosts that run the amd64 `goharbor/*` images without Rosetta. Enable Rosetta for amd64 emulation in the container runtime (Docker Desktop, or Colima with `--vm-type vz --vz-rosetta`), then recreate the Kind cluster.
 
 ### Gateway has no address
 

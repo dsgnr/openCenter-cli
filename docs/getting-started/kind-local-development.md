@@ -20,6 +20,12 @@ set is present.
 
 - A container runtime (`docker` or `podman`) with a running daemon, and
   `kind` + `kubectl` + `helm` + `flux` on your PATH (mise can install these).
+- On Apple Silicon and other ARM hosts, Rosetta emulation for amd64
+  containers. The `goharbor/*` images are published for amd64 only, and
+  without Rosetta the Harbor Go services (core, exporter, jobservice,
+  registry and Trivy) crash on start with `fatal error: lfstack.push`.
+  In Docker Desktop, enable **Use Rosetta for x86_64/amd64 emulation on Apple
+  Silicon**. With Colima, start the VM with `--vm-type vz --vz-rosetta`.
 - A local Gitea for the GitOps repository. Start and provision it with:
 
   ```bash
