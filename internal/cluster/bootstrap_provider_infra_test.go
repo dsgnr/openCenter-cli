@@ -920,3 +920,31 @@ func TestNormalizeOpenStackKubeconfigRejectsInvalidYAMLBeforeReplacement(t *test
 		t.Fatalf("invalid kubeconfig created target, stat error = %v", err)
 	}
 }
+
+func TestKindInstallCalicoSkipsChartCRDsAndForcesConflicts(t *testing.T) {
+	cfg := mustNewClusterTestConfig("calico-kind", "kind")
+	cfg.OpenCenter.GitOps.Repository.LocalDir = filepath.Join(t.TempDir(), "repo")
+
+	valuesDir := filepath.Join(cfg.GitDir(), "applications", "overlays", cfg.ClusterName(), "services", "calico", "helm-values")
+	if err := os.MkdirAll(valuesDir, 0o755); err != nil {
+		t.Fatalf("mkdir values dir: %v", err)
+	}
+	valuesPath := filepath.Join(valuesDir, "override_values.yaml")
+	if err := os.WriteFile(valuesPath, []byte("installation: {}\n"), 0o600); err != nil {
+		t.Fatalf("write override values: %v", err)
+	}
+	kubeconfigPath := filepath.Join(t.TempDir(), "kubeconfig.yaml")
+	if err := os.WriteFile(kubeconfigPath, []byte("apiVersion: v1\n"), 0o600); err != nil {
+		t.Fatalf("write kubeconfig: %v", err)
+	}
+
+	fakeRunner := &fakeLifecycleRunner{}
+	provider := &kindBootstrapProvider{runner: fakeRunner}
+	if err := provider.installKindCalico(context.Background(), &cfg, kubeconfigPath); err != nil {
+		t.Fatalf("installKindCalico() error = %v", err)
+	}
+
+	// The CRDs are applied by kubectl beforehand, so helm must not apply them
+	// again under a different field manager.
+	assertRecordedCommandContains(t, fakeRunner.calls, "helm", "--create-namespace --skip-crds --force-conflicts --kubeconfig "+kubeconfigPath+" -f "+valuesPath)
+}

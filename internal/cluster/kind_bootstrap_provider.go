@@ -124,7 +124,7 @@ func (p *kindBootstrapProvider) BuildSteps(cfg *v2.Config, clusterPaths *paths.C
 				WorkingDir: clusterPaths.ClusterDir,
 				Commands: []BootstrapPlanCommand{
 					commandPlan("kubectl", "apply", "--server-side", "-f", "<calico-operator-crds>"),
-					commandPlan("helm", "upgrade", "--install", "calico", calicoHelmChart),
+					commandPlan("helm", "upgrade", "--install", "calico", calicoHelmChart, "--skip-crds", "--force-conflicts"),
 				},
 				Environment: []BootstrapPlanEnv{{Name: "KUBECONFIG", Value: opts.KubeconfigPath}},
 				Reads:       []string{opts.KubeconfigPath},

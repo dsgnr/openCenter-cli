@@ -114,6 +114,10 @@ func (p *kindBootstrapProvider) installKindCalico(ctx context.Context, cfg *v2.C
 		"--version", selection.Version,
 		"--namespace", selection.Namespace,
 		"--create-namespace",
+		// The CRDs are applied server-side above. Helm 4 would otherwise apply the
+		// chart's crds/ under its own field manager and conflict with "kubectl".
+		"--skip-crds",
+		"--force-conflicts",
 		"--kubeconfig", kubeconfigPath,
 		"-f", valuesPath,
 	); err != nil {
