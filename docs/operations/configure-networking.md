@@ -6,7 +6,7 @@ description: Set networking values in an openCenter cluster configuration.
 doc_type: how-to
 audience: openCenter operators
 tags: [networking, configuration]
-last_updated: 2026-09-25
+last_updated: 2026-10-13
 ---
 # Configure networking
 
@@ -31,6 +31,12 @@ opencenter:
 Kind has a separate rule: when its default CNI is active, a managed plugin must
 not also be enabled. Use `--kind-disable-default-cni` at initialization when
 openCenter should manage the CNI.
+
+When openCenter manages Calico on Kind, the bootstrap applies the Calico operator
+CRDs with `kubectl apply --server-side` and then installs the Helm chart with
+`--skip-crds --force-conflicts`. The Helm install does not reapply the chart CRDs,
+so it does not conflict with the `kubectl` field manager. This matches the Calico
+install on OpenStack.
 
 ## Configure CIDRs and VRRP
 
