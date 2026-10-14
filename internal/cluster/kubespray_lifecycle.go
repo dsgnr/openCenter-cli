@@ -25,6 +25,10 @@ const (
 	kubesprayRepositoryURL            = "https://github.com/kubernetes-sigs/kubespray.git"
 	ansibleHardeningRepositoryURL     = "https://opendev.org/openstack/ansible-hardening"
 	ansibleHardeningVersion           = "stable/2025.1"
+	// The branch exists only as a remote-tracking ref after a plain clone. A bare
+	// name makes `checkout --detach` try to create a local branch, which git
+	// rejects as a conflict with -b.
+	ansibleHardeningRef = "origin/" + ansibleHardeningVersion
 )
 
 type kubesprayLifecycleOutputs struct {
@@ -343,7 +347,7 @@ func (l *kubesprayLifecycle) prepareOSHardeningContext(ctx context.Context) erro
 	} else if !info.IsDir() {
 		return fmt.Errorf("ansible-hardening role path %s is not a directory", rolePath)
 	}
-	if _, err := l.runner.Run(ctx, l.stateDir, nil, "git", "-C", rolePath, "checkout", "--detach", ansibleHardeningVersion); err != nil {
+	if _, err := l.runner.Run(ctx, l.stateDir, nil, "git", "-C", rolePath, "checkout", "--detach", ansibleHardeningRef); err != nil {
 		return fmt.Errorf("checkout ansible-hardening %s: %w", ansibleHardeningVersion, err)
 	}
 	return nil

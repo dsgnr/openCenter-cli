@@ -115,7 +115,7 @@ func (p *openstackBootstrapProvider) BuildSteps(cfg *v2.Config, clusterPaths *pa
 		if kubeLifecycle.osHardening {
 			prepareCommands = append(prepareCommands,
 				commandPlan("git", "clone", ansibleHardeningRepositoryURL, filepath.Join(kubeLifecycle.inventoryPath, "roles", "ansible-hardening")),
-				commandPlan("git", "-C", filepath.Join(kubeLifecycle.inventoryPath, "roles", "ansible-hardening"), "checkout", "--detach", ansibleHardeningVersion),
+				commandPlan("git", "-C", filepath.Join(kubeLifecycle.inventoryPath, "roles", "ansible-hardening"), "checkout", "--detach", ansibleHardeningRef),
 			)
 			prepareWrites = append(prepareWrites,
 				filepath.Join(kubeLifecycle.inventoryPath, "roles", "ansible-hardening"),

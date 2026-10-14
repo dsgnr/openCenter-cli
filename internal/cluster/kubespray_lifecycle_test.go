@@ -394,7 +394,7 @@ func TestKubesprayOSHardeningStagesPinnedRoleAndExistingPlaybookSemantics(t *tes
 	for _, call := range runner.calls {
 		joined += call.name + " " + strings.Join(call.args, " ") + "\n"
 	}
-	if !strings.Contains(joined, "git clone "+ansibleHardeningRepositoryURL) || !strings.Contains(joined, "git -C "+filepath.Join(stateDir, "inventory", "roles", "ansible-hardening")+" checkout --detach "+ansibleHardeningVersion) {
+	if !strings.Contains(joined, "git clone "+ansibleHardeningRepositoryURL) || !strings.Contains(joined, "git -C "+filepath.Join(stateDir, "inventory", "roles", "ansible-hardening")+" checkout --detach "+ansibleHardeningRef) {
 		t.Fatalf("missing pinned ansible-hardening preparation commands:\n%s", joined)
 	}
 	if got := runner.calls[len(runner.calls)-1].name; got != "git" {
